@@ -35,6 +35,7 @@
 #include "connect.h"
 #include "asic.h"
 #include "TPS546.h"
+#include "system.h"
 #include "theme_api.h"  // Add theme API include
 #include "axe-os/api/system/asic_settings.h"
 #include "http_server.h"
@@ -516,6 +517,25 @@ static esp_err_t POST_restart(httpd_req_t * req)
     return ESP_OK;
 }
 
+static esp_err_t POST_reset_best_diff(httpd_req_t * req)
+{
+    if (is_network_allowed(req) != ESP_OK) {
+        return httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, "Unauthorized");
+    }
+
+    if (set_cors_headers(req) != ESP_OK) {
+        httpd_resp_send_500(req);
+        return ESP_OK;
+    }
+
+    SYSTEM_reset_best_diff(GLOBAL_STATE);
+
+    const char * resp_str = "Best difficulty reset";
+    httpd_resp_send(req, resp_str, HTTPD_RESP_USE_STRLEN);
+
+    return ESP_OK;
+}
+
 
 /* Simple handler for getting system handler */
 static esp_err_t GET_system_info(httpd_req_t * req)
@@ -975,19 +995,35 @@ esp_err_t start_rest_server(void * pvParameters)
     httpd_register_uri_handler(server, &swarm_options_uri);
 
     httpd_uri_t system_restart_uri = {
-        .uri = "/api/system/restart", .method = HTTP_POST, 
-        .handler = POST_restart, 
+        .uri = "/api/system/restart", .method = HTTP_POST,
+        .handler = POST_restart,
         .user_ctx = rest_context
     };
     httpd_register_uri_handler(server, &system_restart_uri);
 
+    httpd_uri_t reset_best_diff_uri = {
+        .uri = "/api/system/bestdiff/reset",
+        .method = HTTP_POST,
+        .handler = POST_reset_best_diff,
+        .user_ctx = rest_context
+    };
+    httpd_register_uri_handler(server, &reset_best_diff_uri);
+
     httpd_uri_t system_restart_options_uri = {
-        .uri = "/api/system/restart", 
-        .method = HTTP_OPTIONS, 
-        .handler = handle_options_request, 
+        .uri = "/api/system/restart",
+        .method = HTTP_OPTIONS,
+        .handler = handle_options_request,
         .user_ctx = NULL
     };
     httpd_register_uri_handler(server, &system_restart_options_uri);
+
+    httpd_uri_t reset_best_diff_options_uri = {
+        .uri = "/api/system/bestdiff/reset",
+        .method = HTTP_OPTIONS,
+        .handler = handle_options_request,
+        .user_ctx = NULL
+    };
+    httpd_register_uri_handler(server, &reset_best_diff_options_uri);
 
     httpd_uri_t update_system_settings_uri = {
         .uri = "/api/system", 

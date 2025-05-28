@@ -285,5 +285,9 @@ export class HomeComponent {
     });
 
     return this.calculateAverage(efficiencies);
-  }  
+  }
+
+  public resetBestDiff() {
+    this.systemService.resetBestDiff().subscribe();
+  }
 }

@@ -530,6 +530,21 @@ paths:
         '500':
           description: Internal server error
 
+  /api/system/bestdiff/reset:
+    post:
+      summary: Reset best difficulty
+      description: Reset stored best difficulty statistics
+      operationId: resetBestDifficulty
+      tags:
+        - system
+      responses:
+        '200':
+          description: Best difficulty reset
+        '401':
+          description: Unauthorized - Client not in allowed network range
+        '500':
+          description: Internal server error
+
   /api/system:
     patch:
       summary: Update system settings
