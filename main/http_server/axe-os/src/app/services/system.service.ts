@@ -78,6 +78,10 @@ export class SystemService {
     return this.httpClient.post(`${uri}/api/system/restart`, {}, {responseType: 'text'});
   }
 
+  public resetBestDiff(uri: string = '') {
+    return this.httpClient.post(`${uri}/api/system/bestdiff/reset`, {}, {responseType: 'text'});
+  }
+
   public updateSystem(uri: string = '', update: any) {
     return this.httpClient.patch(`${uri}/api/system`, update);
   }

@@ -345,3 +345,16 @@ static esp_err_t ensure_overheat_mode_config() {
 
     return ESP_OK;
 }
+
+void SYSTEM_reset_best_diff(GlobalState * GLOBAL_STATE)
+{
+    SystemModule * module = &GLOBAL_STATE->SYSTEM_MODULE;
+
+    module->best_nonce_diff = 0;
+    module->best_session_nonce_diff = 0;
+
+    nvs_config_set_u64(NVS_CONFIG_BEST_DIFF, 0);
+
+    _suffix_string(0, module->best_diff_string, DIFF_STRING_SIZE, 0);
+    _suffix_string(0, module->best_session_diff_string, DIFF_STRING_SIZE, 0);
+}
